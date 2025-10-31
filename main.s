@@ -15,7 +15,7 @@ setup:
 	; ******* My data and where to put it in RAM *
 myTable:
 	db	0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07
-	db	0x18,0x29,0x56,0x33,0x71;Table with 8 bytes
+	db	0x18,0x29,0x56,0x33,0x71    ;Table with 13 bytes
 	myArray EQU 0x400	; Address in RAM for data
 	counter EQU 0x10	; Address of counter variable
 	align	2		; ensure alignment of subsequent instructions 
@@ -38,12 +38,12 @@ loop:
         tblrd*+			; move one byte from PM to TABLAT, increment TBLPRT
 	movff	TABLAT, POSTINC0	; move read data from TABLAT to (FSR0), increment FSR0	
 	movff 	TABLAT, PORTC
-	;movlw	high(0xFFFF)
-	;movwf	0x41, A
-	;movlw	low(0xFFFF)
+	;movlw	high(0xFFFF)	    ;code to use 16bit number as our loop iterations for delay routine
+	;movwf	0x41, A		    ltake upper its and store in 0x41 address
+	;movlw	low(0xFFFF)	    ;take lower bits and store in 0x40 address
 	;movwf	0x40, A
-	movff PORTD, 0x41
-	movlw 0xFF
+	movff PORTD, 0x41	;use portd input for delay routine
+	movlw 0xFF		;take 225 as our lower number
 	movwf 0x40, A
 	call delay
 	decfsz	counter, A	; count down to zero
@@ -51,9 +51,9 @@ loop:
 	
 	goto	0
 delay:
-	movlw 0x00
-dloop:	decf 0x40, f, A
-	subwfb 0x41, f, A
-	bc dloop
+	movlw 0x00	    ;w = 0
+dloop:	decf 0x40, f, A	    ;no carry when 0x00 -> 0xff
+	subwfb 0x41, f, A   ;o carry when 0x00 -> 0xff
+	bc dloop	    ;if carry, then loop again
 	return
 	end	main
