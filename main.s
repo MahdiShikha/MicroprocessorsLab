@@ -31,13 +31,13 @@ start:
 	movlw	13		; 8 bytes to read
 	movwf 	counter, A	; our counter register
 	movlw 0x00
-	movwf TRISC		;set port c to output
+	movwf TRISJ		;set port J to output
 	movlw 0xFF	    
 	movwf TRISD		;set port d to input
 loop:
         tblrd*+			; move one byte from PM to TABLAT, increment TBLPRT
 	movff	TABLAT, POSTINC0	; move read data from TABLAT to (FSR0), increment FSR0	
-	movff 	TABLAT, PORTC
+	movff 	TABLAT, PORTJ
 	;movlw	high(0xFFFF)	    ;code to use 16bit number as our loop iterations for delay routine
 	;movwf	0x41, A		    ltake upper its and store in 0x41 address
 	;movlw	low(0xFFFF)	    ;take lower bits and store in 0x40 address
