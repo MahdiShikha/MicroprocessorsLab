@@ -14,8 +14,8 @@ setup:
 	goto	start
 	; ******* My data and where to put it in RAM *
 myTable:
-	db	0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07
-	db	0x18,0x29,0x56,0x33,0x71    ;Table with 13 bytes
+	db	0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x05
+	db	0x04,0x03,0x02,0x01,0x00    ;Table with 13 bytes
 	myArray EQU 0x400	; Address in RAM for data
 	counter EQU 0x10	; Address of counter variable
 	align	2		; ensure alignment of subsequent instructions 
@@ -31,9 +31,9 @@ start:
 	movlw	13		; 8 bytes to read
 	movwf 	counter, A	; our counter register
 	movlw 0x00
-	movwf TRISJ		;set port J to output
+	movwf TRISJ, A		;set port J to output
 	movlw 0xFF	    
-	movwf TRISD		;set port d to input
+	movwf TRISD, A	;set port d to input
 loop:
         tblrd*+			; move one byte from PM to TABLAT, increment TBLPRT
 	movff	TABLAT, POSTINC0	; move read data from TABLAT to (FSR0), increment FSR0	
