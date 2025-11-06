@@ -14,8 +14,8 @@ setup:
 	goto	start
 	; ******* My data and where to put it in RAM *
 myTable:
-	db	0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x05
-	db	0x04,0x03,0x02,0x01,0x00    ;Table with 13 bytes
+	db	0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07
+	db	0x08,0x07,0x06,0x05,0x04,0x03,0x02,0x01    ;Table with 13 bytes
 	myArray EQU 0x400	; Address in RAM for data
 	counter EQU 0x10	; Address of counter variable
 	align	2		; ensure alignment of subsequent instructions 
@@ -28,7 +28,7 @@ start:
 	movwf	TBLPTRH, A	; load high byte to TBLPTRH
 	movlw	low(myTable)	; address of data in PM
 	movwf	TBLPTRL, A	; load low byte to TBLPTRL
-	movlw	13		; 8 bytes to read
+	movlw	16		; 16 bytes to read
 	movwf 	counter, A	; our counter register
 	movlw 0x00
 	movwf TRISJ, A		;set port J to output
