@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup, LCD_Write_Message
+global  LCD_Setup, LCD_Write_Message,LCD_Clear,LCD_GotoRow1,LCD_GotoRow2,LCD_Puts_PM
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -54,7 +54,40 @@ LCD_Loop_message:
 	decfsz  LCD_counter, A
 	bra	LCD_Loop_message
 	return
+; --- Go to row1, column W (0..15) ---
+LCD_GotoRow1:
+        movlw   0
+	addlw   0x80              ; 0x80 | (0x00 + col)
+	call    LCD_Send_Byte_I   ; RS=0, send command
+	movlw   10                ; ~40us for command exec
+	call    LCD_delay_x4us
+	return
 
+; --- Go to row2, column W (0..15) ---
+LCD_GotoRow2:
+        movlw 0
+	addlw   0xC0              ; 0x80 | (0x40 + col)
+	call    LCD_Send_Byte_I   ; RS=0
+	movlw   10
+	call    LCD_delay_x4us
+	return
+			    
+LCD_Clear:	    ; Clear display 0x01, needs long delay
+	movlw	200
+	call	LCD_delay_ms
+	movlw	200
+	call	LCD_delay_ms
+	movlw	200
+	call	LCD_delay_ms
+	movlw	200
+	call	LCD_delay_ms
+	movlw	200
+	call	LCD_delay_ms
+	movlw   0x01
+	call    LCD_Send_Byte_I     ; RS=0 -> command
+	movlw   2                   ; >= 2 ms
+	call    LCD_delay_ms
+	return
 LCD_Send_Byte_I:	    ; Transmits byte stored in W to instruction reg
 	movwf   LCD_tmp, A
 	swapf   LCD_tmp, W, A   ; swap nibbles, high nibble goes first
@@ -83,6 +116,17 @@ LCD_Send_Byte_D:	    ; Transmits byte stored in W to data reg
         call    LCD_Enable  ; Pulse enable Bit 
 	movlw	10	    ; delay 40us
 	call	LCD_delay_x4us
+	return
+	; --- Write N bytes from Program Memory directly to LCD ---
+; IN: TBLPTRU:H:L = PM addr,  W = length
+LCD_Puts_PM:
+	movwf   LCD_counter, A
+pm_loop:
+	tblrd*+
+	movf    TABLAT, W, A
+	call    LCD_Send_Byte_D 
+	decfsz  LCD_counter, A
+	bra     pm_loop
 	return
 
 LCD_Enable:	    ; pulse enable bit LCD_E for 500ns
