@@ -68,14 +68,13 @@ loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	lfsr	2, myArray
 	call	UART_Transmit_Message
 
-	call	LCD_GotoRow2
+	call	LCD_GotoRow2	; Called before output message to LCD method 
 	movlw	myTable_l	; output message to LCD
 	addlw	0xff		; don't send the final carriage return to LCD
 	lfsr	2, myArray
 	
 	
 	call	LCD_Write_Message
-	;call	LCD_Write_Message
 	;call	LCD_Clear
 
 	goto	$		; goto current line in code
