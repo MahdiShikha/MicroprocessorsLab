@@ -17,12 +17,12 @@ myTable:
 					; message, plus carriage return
 					
 	myTable_l   EQU	13	; length of data
-line1:     
-	db 'Hello World',0
-	line1_len  EQU ($-line1)-1
-line2:     
-	db 'Hello World',0
-	line2_len  EQU ($-line2)-1	
+;line1:     
+	;db 'Hello World',0
+	;line1_len  EQU ($-line1)-1
+;line2:     
+	;db 'Hello World',0
+	;line2_len  EQU ($-line2)-1	
    align	2
     
 psect	code, abs	
@@ -37,44 +37,44 @@ setup:	bcf	CFGS	; point to Flash program memory
 	goto	start
 	
 	; ******* Main programme ****************************************
-start: 	;lfsr	0, myArray	; Load FSR0 with address in RAM	
-	;movlw	low highword(myTable)	; address of data in PM
-	;movwf	TBLPTRU, A		; load upper bits to TBLPTRU
-	;movlw	high(myTable)	; address of data in PM
-	;movwf	TBLPTRH, A		; load high byte to TBLPTRH
-	;movlw	low(myTable)	; address of data in PM
-	;movwf	TBLPTRL, A		; load low byte to TBLPTRL
-	;movlw	myTable_l	; bytes to read
-	;movwf 	counter, A		; our counter register
+start: 	lfsr	0, myArray	; Load FSR0 with address in RAM	
+	movlw	low highword(myTable)	; address of data in PM
+	movwf	TBLPTRU, A		; load upper bits to TBLPTRU
+	movlw	high(myTable)	; address of data in PM
+	movwf	TBLPTRH, A		; load high byte to TBLPTRH
+	movlw	low(myTable)	; address of data in PM
+	movwf	TBLPTRL, A		; load low byte to TBLPTRL
+	movlw	myTable_l	; bytes to read
+	movwf 	counter, A		; our counter register
 	  ; ------- Row1: col=0, print "Hello World" -------
-	movlw   0
-	rcall   LCD_GotoRow1
-	movlw   low  highword(line1)
-	movwf   TBLPTRU, A
-	movlw   high line1
-	movwf   TBLPTRH, A
-	movlw   low  line1
-	movwf   TBLPTRL, A
-	movlw   line1_len
-	call   LCD_Puts_PM
+	;movlw   0
+	;rcall   LCD_GotoRow1
+	;movlw   low  highword(line1)
+	;movwf   TBLPTRU, A
+	;movlw   high line1
+	;movwf   TBLPTRH, A
+	;movlw   low  line1
+	;movwf   TBLPTRL, A
+	;movlw   line1_len
+	;call   LCD_Puts_PM
 
 
-	goto $
-loop: 	
-        ;tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
-	;movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
-	;decfsz	counter, A		; count down to zero
-	;bra	loop		; keep going until finished
+loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
+	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
+	decfsz	counter, A		; count down to zero
+	bra	loop		; keep going until finished
 		
-	;movlw	myTable_l	; output message to UART
-	;lfsr	2, myArray
-	;call	UART_Transmit_Message
+	movlw	myTable_l	; output message to UART
+	lfsr	2, myArray
+	call	UART_Transmit_Message
 
+	call	LCD_GotoRow2
+	movlw	myTable_l	; output message to LCD
+	addlw	0xff		; don't send the final carriage return to LCD
+	lfsr	2, myArray
 	
-	;movlw	myTable_l	; output message to LCD
-	;addlw	0xff		; don't send the final carriage return to LCD
-	;lfsr	2, myArray
 	
+	call	LCD_Write_Message
 	;call	LCD_Write_Message
 	;call	LCD_Clear
 
