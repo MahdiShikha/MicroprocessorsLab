@@ -16,10 +16,7 @@ myTable:
 	db	'H','e','l','l','o',' ','W','o','r','l','d','!',0x0a
 					; message, plus carriage return
 					
-	myTable_l   EQU	13	; length of data
-line1:     
-	db 'Hello World',0
-	line1_len  EQU 13	
+	myTable_l   EQU	13	; length of data	
    align	2
     
 psect	code, abs	
@@ -38,14 +35,13 @@ start: 	;lfsr	0, myArray	; Load FSR0 with address in RAM
 	movlw	low highword(myTable)	; address of data in PM
 	movwf	TBLPTRU, A		; load upper bits to TBLPTRU
 	movlw	high(myTable)	; address of data in PM
-	movwf	TBLPTRH, A		; load high byte to TBLPTRH
-	movlw	low(myTable)	; address of data in PM
-	movwf	TBLPTRL, A		; load low byte to TBLPTRL
+	movwf	TBLPTRH, A		; load high byte to TBLPTRH\, A		; load low byte to TBLPTRL
 	movlw	myTable_l	; bytes to read
 	movwf 	counter, A		; our counter register
+	
+	call	LCD_Clear
 	  ; ------- Row1: col=0, print "Hello World" -------
 	; ===== Row1, col = 0 =====
-	movlw   0
 	call    LCD_GotoRow1            ; set DDRAM address to row 1, column 0
 
     ; --- Loop count N = myTable_l - 1 (skip trailing 0x0A for LCD) ---
@@ -60,7 +56,6 @@ LCD_PM_Row1:
 	decfsz  counter, A              ; N-- ; done?
 	bra     LCD_PM_Row1             ; loop until all bytes sent
     ; ===== Row2, col = 0 =====
-	movlw   0
 	call    LCD_GotoRow2            ; set DDRAM address to row 2, column 0
 
     ; --- Rewind TBLPTR back to start of message in PM ---
@@ -78,10 +73,20 @@ LCD_PM_Row1:
 LCD_PM_Row2:
 	tblrd*+                         ; read next PM byte to TABLAT, TBLPTR++
 	movf    TABLAT, W, A            ; W = byte from PM
-	call    LCD_Send_Byte_D         ; write data byte to LCD
+	call    LCD_Send_Byte_D		; write data byte to LCD
 	decfsz  counter, A
 	bra     LCD_PM_Row2             ; loop for all bytes
+	   
+	; --- Rewind TBLPTR back to start of message in PM ---
+	movlw   low  highword(myTable)
+	movwf   TBLPTRU, A
+	movlw   high myTable
+	movwf   TBLPTRH, A
+	movlw   low  myTable
+	movwf   TBLPTRL, A
 
+	movlw   myTable_l
+	movwf   counter, A
 ;loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 ;	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
 ;	decfsz	counter, A		; count down to zero
