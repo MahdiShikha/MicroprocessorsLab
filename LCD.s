@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup, LCD_Write_Message,LCD_Clear,LCD_GotoRow1,LCD_GotoRow2,LCD_Puts_PM
+global  LCD_Setup, LCD_Write_Message,LCD_Clear,LCD_GotoRow1,LCD_GotoRow2,LCD_Puts_PM,LCD_Send_Byte_D
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -55,7 +55,7 @@ LCD_Loop_message:
 	bra	LCD_Loop_message
 	return
 ; --- Go to row1, column W (0..15) ---
-LCD_GotoRow1:
+LCD_GotoRow1:			  ;Needs to be called before any output message to LCD methods are used
         movlw   0
 	addlw   0x80              ; 0x80 | (0x00 + col)
 	call    LCD_Send_Byte_I   ; RS=0, send command
@@ -64,8 +64,8 @@ LCD_GotoRow1:
 	return
 
 ; --- Go to row2, column W (0..15) ---
-LCD_GotoRow2:
-        movlw 0
+LCD_GotoRow2:			    ;Needs to be called before any output message to LCD methods are used 
+        movlw	0
 	addlw   0xC0              ; 0x80 | (0x40 + col)
 	call    LCD_Send_Byte_I   ; RS=0
 	movlw   10
@@ -73,20 +73,18 @@ LCD_GotoRow2:
 	return
 			    
 LCD_Clear:	    ; Clear display 0x01, needs long delay
-	movlw	200
-	call	LCD_delay_ms
-	movlw	200
-	call	LCD_delay_ms
-	movlw	200
-	call	LCD_delay_ms
-	movlw	200
-	call	LCD_delay_ms
-	movlw	200
-	call	LCD_delay_ms
 	movlw   0x01
 	call    LCD_Send_Byte_I     ; RS=0 -> command
-	movlw   2                   ; >= 2 ms
-	call    LCD_delay_ms
+	movlw   200                   ; >= 2 ms
+	call	LCD_delay_ms
+	movlw	200
+	call	LCD_delay_ms
+	movlw	200
+	call	LCD_delay_ms
+	movlw	200
+	call	LCD_delay_ms
+	movlw	200
+	call	LCD_delay_ms
 	return
 LCD_Send_Byte_I:	    ; Transmits byte stored in W to instruction reg
 	movwf   LCD_tmp, A
