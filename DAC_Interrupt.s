@@ -14,7 +14,7 @@ DAC_Int_Hi:
 DAC_Setup:
 	clrf	TRISJ, A	; Set PORTD as all outputs
 	clrf	LATJ, A		; Clear PORTD outputs
-	movlw	10000111B	; Set timer0 to 16-bit, Fosc/4/256
+	movlw	10000000B	; Set timer0 to 16-bit, Fosc/4/256
 	movwf	T0CON, A	; = 62.5KHz clock rate, approx 1sec rollover
 	bsf	TMR0IE		; Enable timer0 interrupt
 	bsf	GIE		; Enable all interrupts
