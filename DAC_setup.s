@@ -1,19 +1,24 @@
 #include <xc.inc>
     
     global  SPI1_Init, DAC_WriteWord
-    global  DAC_high, DAC_low
+    global  DAC_high, DAC_low,SPI1_SendByte
     
     psect   udata_acs
     DAC_high:	ds 1
     DAC_low:	ds 1
-    ; ---- SPI2 init: CKP=1, CKE=0, Master Fosc/64 ----
+    ; ---- SPI1 init: CKP=1, CKE=0, Master Fosc/64 ----
+    psect dac_code,  class=CODE
 SPI1_Init:
     bcf	  TRISC, PORTC_SCK1_POSN, A	;RC3 = SCK1       
     bsf	  TRISC, PORTC_SDI1_POSN, A	;RC4 = SDI1
     bcf	  TRISC, PORTC_SDO1_POSN, A     ;RC5 = SDO1
     
+    bcf TRISC, 0, A
+    bsf LATC,0,A
+    
     bcf	  TRISE, 0, A
     bsf	  LATE, 0 , A 
+    
     ; --- SPI1 config: Master, Fosc/64, mode 0,0 (CKP=0, CKE=1) ---
     
     clrf    SSP1STAT, A
@@ -25,12 +30,14 @@ SPI1_Init:
 
     return
 
-; ---- Send 1 byte via SPI2 (MSB-first, auto 8 clocks) ----
+; ---- Send 1 byte via SPI1 (MSB-first, auto 8 clocks) ----
 SPI1_SendByte:
+    ;bSf	  LATE,0,A
     movwf SSP1BUF, A
 WBF:btfss SSP1STAT, 0, A        ; BF?
     bra   WBF
     movf  SSP1BUF, W, A         ; clear BF
+    ;bcf	  LATE,0,A
     return
 DAC_WriteWord:
     bcf     LATE, 0, A                  ; CS low (select DAC)
