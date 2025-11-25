@@ -19,6 +19,6 @@ test:
 	movf PORTD, W, A
 	cpfsgt 	0x06, A
 	bra 	loop		    ; Not yet finished goto start of loop again
-	goto 	0x0		    ; Re-run program from start
+	goto 	0x0		    ; Re-run program from start 789867
 
 	end	main
